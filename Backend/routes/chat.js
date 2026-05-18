@@ -54,31 +54,39 @@ router.delete("/thread/:threadId", async(req, res) => {
 });
 
 router.post("/chat", async(req, res) =>{
-const {threadId, message} = req.body;
-    if(!threadId || !message){ res.status(400).json({error: "Couldn't have the thread"})};
+    const {threadId, message} = req.body;
+    if(!threadId || !message){
+        return res.status(400).json({error: "threadId and message are required"});
+    }
     try{
-        const thread = await Thread.findOne({threadId});
+        let thread = await Thread.findOne({threadId});
+        const isNewThread = !thread;
         if(!thread){
-            res.status(400).json({error:"Doesn't exist"})
             thread = new Thread({
                 threadId,
                 title: message,
                 messages:[
-                    {role:"user", parts:[{text: message}]}
+                    {role:"user", content: message}
                 ]
-        });
+            });
+        }
+        else{
+            thread.messages.push({role: "user", content: message});
+        }
+
+        await thread.save();
+
+        const aireply = await geminiResponse(message);
+        if(aireply){
+            thread.messages.push({role:"assistant", content: aireply});
+            thread.updatedAt = Date.now();
+            await thread.save();
+        }
+
+        res.status(isNewThread ? 201 : 200).json({reply: aireply, threadId, created: isNewThread});
     }
-    else{
-        thread.message.push({role: "user", parts:[{text: message}]});
-    }
-    const aireply = await geminiResponse(message);
-    thread.messages.push({role:"assistant", content:"aireply"});
-    thread.updatedAt = Date.now();
-    await thread.save();
-    res.json({reply: aireply});
-}
     catch(err){
-        res.send(err.message);
+        res.status(500).send(err.message);
     }
 });
 
