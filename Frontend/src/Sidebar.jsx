@@ -4,7 +4,7 @@ function Sidebar(){
         <section className="sidebar">
             <button>
                 <img src="src/assets/blacklogo.png" className="logo" alt="GPT Logo" />
-                <span><i class="fa-solid fa-pen-to-square"></i></span>
+                <span><i className="fa-solid fa-pen-to-square"></i></span>
             </button>
             <ul className="history">
             <li>history</li> 

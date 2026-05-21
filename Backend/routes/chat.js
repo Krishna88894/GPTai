@@ -33,7 +33,7 @@ router.get("/thread/:threadId", async(req, res) =>{
     try{
         const thread = await Thread.findOne({threadId});
         if(!thread){
-            res.status(400).json({error: "Not found"});
+            return res.status(400).json({error: "Not found"});
         }
         res.send(thread.messages);
     }
@@ -43,9 +43,9 @@ router.get("/thread/:threadId", async(req, res) =>{
 });
 
 router.delete("/thread/:threadId", async(req, res) => {
-    const {thread} = req.params;
+    const {threadId} = req.params;
     try{
-        await Thread.findOneAndDelete({thread});
+        await Thread.findOneAndDelete({threadId});
         res.status(200).json({success: "Thread has been deleted"});
     }
     catch(error){
