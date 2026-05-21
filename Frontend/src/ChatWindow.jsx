@@ -1,10 +1,13 @@
 import "./ChatWindow.css"
 import Chat from "./Chat.jsx"
 import {MyContext} from "./Contexts.jsx"
-import { useContext } from "react"
+import { useContext, useState } from "react"
+import {ScaleLoader} from "react-spinners";
 function ChatWindow(){
     const {prompt, Setprompt, reply, Setreply, currThreadId, SetcurrThreadId} = useContext(MyContext);
+    const [loading, setloading] = useState(false);
     const getReply = async ()=>{
+        setloading(true);
         const options ={
             method:"POST",
             headers:{
@@ -17,12 +20,28 @@ function ChatWindow(){
         };
         try{
             const response = await fetch("http://localhost:8080/chat", options);
-            const rr = await response.json();
-            Setreply(rr.reply ?? "");
-            console.log(rr);
+            const responseText = await response.text();
+            let responseData = {};
+
+            try{
+                responseData = responseText ? JSON.parse(responseText) : {};
+            }
+            catch(parseError){
+                responseData = {error: responseText || "Unexpected server response"};
+            }
+
+            if(!response.ok){
+                throw new Error(responseData.error || responseData.message || "Failed to get reply");
+            }
+            Setreply(responseData.reply ?? "No reply received");
+            console.log(responseData);
         }
         catch(error){
             console.error(error);
+            Setreply(error.message);
+        }
+        finally{
+            setloading(false);
         }
     }
 
@@ -35,16 +54,19 @@ function ChatWindow(){
                     <span className="userIcon"><i className="fa-solid fa-user"></i></span>
                 </div>
             </div>
+        <ScaleLoader color= "#fff" loading={loading}>
 
+        </ScaleLoader>
+                    <Chat />
             <div className="chatInput">
+                    {reply ? <p className="replyBox">{reply}</p> : null}     
                 <div className="InputBox">
                     <input placeholder="Ask Anything" value={prompt}
-                    onChange={(e) => Setprompt(e.target.value)}> 
+                    onChange={(e) => Setprompt(e.target.value)} 
+                    onKeyDown={(e) => e.key === 'Enter' ? getReply() : ''}>
                     </input>
                     <div id="submit" onClick={getReply}><i className="fa-solid fa-paper-plane"></i></div>
                 </div>
-
-
                 <p className="info">
                 GPTai can make mistakes. Check important infomation. 
                 </p>

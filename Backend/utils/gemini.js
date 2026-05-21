@@ -1,6 +1,10 @@
 import 'dotenv/config';
 
 const geminiResponse = async(message) =>{
+    if(!process.env.GEMINI_API_KEY){
+        throw new Error("GEMINI_API_KEY is missing");
+    }
+
      const options ={
         method: "POST",
         headers: {
@@ -20,11 +24,14 @@ const geminiResponse = async(message) =>{
     try{
         const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", options);
         const data = await response.json();
+        if(!response.ok){
+            throw new Error(data.error?.message || `Gemini request failed with status ${response.status}`);
+        }
         return data.candidates?.[0]?.content?.parts?.[0]?.text ?? null;
     }
     catch(error){
         console.log(error);
-        return null;
+        throw error;
     }
 }
 

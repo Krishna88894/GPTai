@@ -86,7 +86,7 @@ router.post("/chat", async(req, res) =>{
         res.status(isNewThread ? 201 : 200).json({reply: aireply, threadId, created: isNewThread});
     }
     catch(err){
-        res.status(500).send(err.message);
+        res.status(500).json({error: err.message});
     }
 });
 
