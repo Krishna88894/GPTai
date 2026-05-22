@@ -19,6 +19,15 @@ app.listen(PORT, () => {
     connectDb();
 });
 
+// Global handlers to log unexpected errors without immediately crashing the process
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+
 const connectDb = async() => {
     try{
         await mongoose.connect(process.env.MONGODB_URI);
