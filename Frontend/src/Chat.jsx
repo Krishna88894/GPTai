@@ -40,12 +40,22 @@ function Chat(){
                 </div>
             ))}
 
-            {chatHistory.length > 0 && latestReply != null && (
-                <div className="aiDiv" key={"typing-preview"}>
-                    <div className="aiMsg">
-                        <ReactMarkdown rehypePlugins={[rehypeHighlight]}>{latestReply}</ReactMarkdown>
+            {chatHistory.length > 0 && (
+                latestReply === null ? (
+                    <div className="aiDiv" key={"typing-preview"}>
+                        <div className="aiMsg">
+                            <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+                                {prevChats?.[prevChats.length - 1]?.content}
+                            </ReactMarkdown>
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <div className="aiDiv" key={"no-typing"}>
+                        <div className="aiMsg">
+                            <ReactMarkdown rehypePlugins={[rehypeHighlight]}>{latestReply}</ReactMarkdown>
+                        </div>
+                    </div>
+                )
             )}
         </div>
         </>

@@ -40,6 +40,20 @@ function Sidebar(){
             console.log(err);
         }
     }
+    const deleteThread = async(threadId) =>{
+        try{
+            const response = await fetch(`http://localhost:8080/thread/${threadId}`, {method: "DELETE"});
+            const res = response.json();
+            console.log(res);
+            SetallThreads(prev => prev.filter(thread => thread.threadId !== threadId));
+            if(threadId === currThreadId){
+                NewChatCreate();
+            }
+        }
+        catch(err){
+            console.log(err);
+        }
+    }
     return (
         <section className="sidebar">
             <button onClick={NewChatCreate}>
@@ -49,7 +63,13 @@ function Sidebar(){
             <ul className="history">
             {
                 allThreads.map((thread) =>(
-                    <li key={thread.threadId} onClick={(e) => Threadchange(thread.threadId)}>{thread.title}</li>
+                    <li key={thread.threadId} onClick={(e) => Threadchange(thread.threadId)}>{thread.title}
+                    <i className="fa-solid fa-trash"
+                    onClick={(e) =>{
+                        e.stopPropagation();
+                        deleteThread(thread.threadId);
+                    }}></i>
+                    </li>
                 ))
             }
             </ul>

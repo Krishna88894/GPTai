@@ -6,6 +6,7 @@ import {ScaleLoader} from "react-spinners";
 function ChatWindow(){
     const {prompt, Setprompt, reply, Setreply, prevChats, SetprevChats, currThreadId, SetcurrThreadId, newChat} = useContext(MyContext);
     const [loading, setloading] = useState(false);
+    const [isOpen, SetisOpen] = useState(false);
     const getReply = async ()=>{
         setloading(true);
         const options ={
@@ -64,11 +65,16 @@ function ChatWindow(){
                     <span className="userIcon"><i className="fa-solid fa-user"></i></span>
                 </div>
             </div>
-        <ScaleLoader color= "#fff" loading={loading}>
+        {
+            isOpen &&
+            <div className="dropdown">
+                <div className="dropItems"><i className="fa-solid fa-arrow-right-from-bracket"></i>Logout</div>
+            </div>
+        }
 
-        </ScaleLoader>
             <div className="chatBody">
                     <Chat />
+        <ScaleLoader color= "#fff" loading={loading}></ScaleLoader>
             </div>
             <div className="chatInput">
                 <div className="InputBox">
