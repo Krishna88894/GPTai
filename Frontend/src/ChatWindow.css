@@ -9,6 +9,14 @@
     align-items: center;
 }
 
+.chatBody{
+    flex: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+}
+
 .navbar{
     width: 100%;
     display: flex;
@@ -69,6 +77,10 @@ input{
 }
 input:focus{
     outline: none;
+}
+
+.replyBox{
+    display: none;
 }
 
 .info{

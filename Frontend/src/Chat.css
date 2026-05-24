@@ -1,5 +1,6 @@
 .chats{
-    max-width: 700px;
+    width: min(100%, 700px);
+    flex: 1;
     overflow-y: auto;
     padding: 2rem;
 }
@@ -13,6 +14,18 @@
     text-align: left;
     font-size: 1rem;
 }
+
+.aiMsg{
+    overflow-wrap: anywhere;
+}
+
+.aiMsg pre,
+.aiMsg code,
+.aiMsg p{
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
 .userMsg{
     background-color: #323232;
     padding: 10px 20px;

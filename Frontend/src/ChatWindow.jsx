@@ -67,9 +67,10 @@ function ChatWindow(){
         <ScaleLoader color= "#fff" loading={loading}>
 
         </ScaleLoader>
+            <div className="chatBody">
                     <Chat />
+            </div>
             <div className="chatInput">
-                    {reply ? <p className="replyBox">{reply}</p> : null}     
                 <div className="InputBox">
                     <input placeholder="Ask Anything" value={prompt}
                     onChange={(e) => Setprompt(e.target.value)} 
