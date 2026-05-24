@@ -1,13 +1,57 @@
 import "./Sidebar.css";
+import { useContext, useEffect } from "react";
+import { MyContext } from "./Contexts.jsx";
+import {v1 as uuidv1} from "uuid";
 function Sidebar(){
+    const {allThreads, SetallThreads, currThreadId, SetnewChat, Setprompt, Setreply, SetprevChats, SetcurrThreadId} = useContext(MyContext);
+    const getAllthreads= async() =>{
+        try{
+           const response = await fetch("http://localhost:8080/thread");
+           const res = await response.json();
+           const datafiltered = res.map(thread => ({threadId: thread.threadId, title: thread.title}));
+           SetallThreads(datafiltered);
+        }
+        catch(err){
+            console.log(err);
+        }
+    };
+    useEffect(() =>{
+        getAllthreads();
+    }, [currThreadId]);
+
+    const NewChatCreate = () =>{
+        SetnewChat(true);
+        Setprompt("");
+        Setreply(null);
+        SetcurrThreadId(uuidv1());
+        SetprevChats([]);
+    }
+    const Threadchange = async(newThreadId) =>{
+        SetcurrThreadId(newThreadId);
+        try{
+            const response = await fetch(`http://localhost:8080/thread/${newThreadId}`); 
+            const res = await response.json();
+            console.log(res);
+            SetprevChats(Array.isArray(res) ? res : []);
+            SetnewChat(false);
+            Setreply(null);
+        }
+        catch(err){
+            console.log(err);
+        }
+    }
     return (
         <section className="sidebar">
-            <button>
+            <button onClick={NewChatCreate}>
                 <img src="src/assets/blacklogo.png" className="logo" alt="GPT Logo" />
                 <span><i className="fa-solid fa-pen-to-square"></i></span>
             </button>
             <ul className="history">
-            <li>history</li> 
+            {
+                allThreads.map((thread) =>(
+                    <li key={thread.threadId} onClick={(e) => Threadchange(thread.threadId)}>{thread.title}</li>
+                ))
+            }
             </ul>
 
             <div className="sign">
