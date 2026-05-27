@@ -1,10 +1,19 @@
 import express from "express";
+import mongoose from "mongoose";
 import Thread from "../models/Thread.js";
 import geminiResponse from "../utils/gemini.js"
 
 const router = express.Router();
 
-router.post("/test", async(req, res) =>{
+const requireMongo = (req, res, next) => {
+    if (mongoose.connection.readyState !== 1) {
+        return res.status(503).json({ error: "Database is unavailable" });
+    }
+
+    next();
+};
+
+router.post("/test", requireMongo, async(req, res) =>{
     try{
         const thread = new Thread({
             threadId:"568",
@@ -18,7 +27,7 @@ router.post("/test", async(req, res) =>{
     }
 });
 
-router.get("/thread", async(req, res) =>{
+router.get("/thread", requireMongo, async(req, res) =>{
     try{
         const threadsAll = await Thread.find({}).sort({updatedAt: -1});
         res.send(threadsAll);
@@ -28,7 +37,7 @@ router.get("/thread", async(req, res) =>{
     }
 })
 
-router.get("/thread/:threadId", async(req, res) =>{
+router.get("/thread/:threadId", requireMongo, async(req, res) =>{
     const {threadId} = req.params;
     try{
         const thread = await Thread.findOne({threadId});
@@ -42,7 +51,7 @@ router.get("/thread/:threadId", async(req, res) =>{
     }
 });
 
-router.delete("/thread/:threadId", async(req, res) => {
+router.delete("/thread/:threadId", requireMongo, async(req, res) => {
     const {threadId} = req.params;
     try{
         await Thread.findOneAndDelete({threadId});
@@ -53,7 +62,7 @@ router.delete("/thread/:threadId", async(req, res) => {
     }
 });
 
-router.post("/chat", async(req, res) =>{
+router.post("/chat", requireMongo, async(req, res) =>{
     const {threadId, message} = req.body;
     if(!threadId || !message){
         return res.status(400).json({error: "threadId and message are required"});

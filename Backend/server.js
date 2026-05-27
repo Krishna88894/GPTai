@@ -39,7 +39,13 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-startServer();
+app.listen(PORT, () => {
+    console.log(`Server running on ${PORT}`);
+});
+
+connectDb().catch(() => {
+    console.error("MongoDB connection is unavailable. The server will stay up, but DB-backed routes will return 503.");
+});
 
 // Global handlers to log unexpected errors without immediately crashing the process
 process.on('unhandledRejection', (reason, promise) => {
@@ -64,15 +70,6 @@ const connectDb = async() => {
 };
 
 async function startServer() {
-    try {
-        await connectDb();
-        app.listen(PORT, () => {
-            console.log(`Server running on ${PORT}`);
-        });
-    }
-    catch (err) {
-        console.error("Server startup aborted because MongoDB is unavailable.");
-        process.exit(1);
-    }
+    return;
 }
 
