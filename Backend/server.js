@@ -56,7 +56,7 @@ process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
 });
 
-const connectDb = async() => {
+async function connectDb() {
     try{
         await mongoose.connect(process.env.MONGODB_URI, {
             serverSelectionTimeoutMS: 5000,
@@ -67,9 +67,5 @@ const connectDb = async() => {
         console.log("Connection Failed :", err);
         throw err;
     }
-};
-
-async function startServer() {
-    return;
 }
 
