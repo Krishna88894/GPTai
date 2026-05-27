@@ -24,7 +24,7 @@ router.get("/thread", async(req, res) =>{
         res.send(threadsAll);
     }
     catch(err){
-        res.send(err.message);
+        res.status(500).json({error: err.message});
     }
 })
 
@@ -38,7 +38,7 @@ router.get("/thread/:threadId", async(req, res) =>{
         res.send(thread.messages);
     }
     catch(err){
-        res.send(err.message);
+        res.status(500).json({error: err.message});
     }
 });
 
@@ -49,7 +49,7 @@ router.delete("/thread/:threadId", async(req, res) => {
         res.status(200).json({success: "Thread has been deleted"});
     }
     catch(error){
-        res.send(error.message);
+        res.status(500).json({error: error.message});
     }
 });
 

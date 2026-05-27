@@ -13,6 +13,7 @@
     width: 30px;
     border-radius: 50%;
     object-fit: cover;
+    flex-shrink: 0;
 }
 button{
     display:flex;
@@ -23,6 +24,9 @@ button{
     border-radius: 5px;
     background-color: transparent;
     border: solid 0.5px rgba(255, 255, 255, 0.5);
+}
+button img{
+    display: block;
 }
 button:hover{
     background-color: rgba(180, 180, 180, 0.15);

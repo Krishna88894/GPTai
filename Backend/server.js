@@ -39,10 +39,7 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-app.listen(PORT, () => {
-    console.log(`Server running on ${PORT}`);
-    connectDb();
-});
+startServer();
 
 // Global handlers to log unexpected errors without immediately crashing the process
 process.on('unhandledRejection', (reason, promise) => {
@@ -55,11 +52,27 @@ process.on('uncaughtException', (err) => {
 
 const connectDb = async() => {
     try{
-        await mongoose.connect(process.env.MONGODB_URI);
+        await mongoose.connect(process.env.MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000,
+        });
         console.log("Database connected");
     }
     catch(err){
         console.log("Connection Failed :", err);
+        throw err;
     }
 };
+
+async function startServer() {
+    try {
+        await connectDb();
+        app.listen(PORT, () => {
+            console.log(`Server running on ${PORT}`);
+        });
+    }
+    catch (err) {
+        console.error("Server startup aborted because MongoDB is unavailable.");
+        process.exit(1);
+    }
+}
 

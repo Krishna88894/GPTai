@@ -2,14 +2,31 @@ import "./Sidebar.css";
 import { useContext, useEffect } from "react";
 import { MyContext } from "./Contexts.jsx";
 import {v1 as uuidv1} from "uuid";
-import blackLogo from "./assets/blacklogo.png";
+import logo from "./assets/logo.png";
 import { apiUrl } from "./api.js";
+const readJsonResponse = async (response, fallback) => {
+    const responseText = await response.text();
+    if (!responseText) {
+        return fallback;
+    }
+
+    try {
+        return JSON.parse(responseText);
+    }
+    catch {
+        return { error: responseText };
+    }
+};
+
 function Sidebar(){
     const {allThreads, SetallThreads, currThreadId, SetnewChat, Setprompt, Setreply, SetprevChats, SetcurrThreadId} = useContext(MyContext);
     const getAllthreads= async() =>{
         try{
            const response = await fetch(apiUrl("/thread"));
-           const res = await response.json();
+           const res = await readJsonResponse(response, []);
+           if(!response.ok){
+               throw new Error(res.error || res.message || "Failed to load threads");
+           }
            const datafiltered = res.map(thread => ({threadId: thread.threadId, title: thread.title}));
            SetallThreads(datafiltered);
         }
@@ -32,7 +49,10 @@ function Sidebar(){
         SetcurrThreadId(newThreadId);
         try{
             const response = await fetch(apiUrl(`/thread/${newThreadId}`)); 
-            const res = await response.json();
+            const res = await readJsonResponse(response, []);
+            if(!response.ok){
+                throw new Error(res.error || res.message || "Failed to load thread");
+            }
             console.log(res);
             SetprevChats(Array.isArray(res) ? res : []);
             SetnewChat(false);
@@ -45,7 +65,10 @@ function Sidebar(){
     const deleteThread = async(threadId) =>{
         try{
             const response = await fetch(apiUrl(`/thread/${threadId}`), {method: "DELETE"});
-            const res = response.json();
+            const res = await readJsonResponse(response, {});
+            if(!response.ok){
+                throw new Error(res.error || res.message || "Failed to delete thread");
+            }
             console.log(res);
             SetallThreads(prev => prev.filter(thread => thread.threadId !== threadId));
             if(threadId === currThreadId){
@@ -59,7 +82,7 @@ function Sidebar(){
     return (
         <section className="sidebar">
             <button onClick={NewChatCreate}>
-                <img src={blackLogo} className="logo" alt="GPT Logo" />
+                <img src={logo} className="logo" alt="GPT Logo" />
                 <span><i className="fa-solid fa-pen-to-square"></i></span>
             </button>
             <ul className="history">
