@@ -58,14 +58,40 @@ process.on('uncaughtException', (err) => {
 
 async function connectDb() {
     try{
-        await mongoose.connect(process.env.MONGODB_URI, {
+        const mongoUri = process.env.MONGODB_URI;
+        if (!mongoUri) {
+            throw new Error("MONGODB_URI is not configured");
+        }
+
+        const dbName = resolveMongoDbName(mongoUri);
+        await mongoose.connect(mongoUri, {
             serverSelectionTimeoutMS: 5000,
+            ...(dbName ? { dbName } : {}),
         });
-        console.log("Database connected");
+        console.log(`Database connected${dbName ? ` (${dbName})` : ""}`);
     }
     catch(err){
         console.log("Connection Failed :", err);
         throw err;
     }
+}
+
+function resolveMongoDbName(mongoUri) {
+    if (process.env.MONGODB_DB_NAME) {
+        return process.env.MONGODB_DB_NAME;
+    }
+
+    try {
+        const parsedUri = new URL(mongoUri);
+        const hasExplicitDbName = parsedUri.pathname && parsedUri.pathname !== "/";
+        if (hasExplicitDbName) {
+            return undefined;
+        }
+    }
+    catch {
+        return undefined;
+    }
+
+    return process.env.NODE_ENV === "production" ? "gptai_prod" : "gptai_local";
 }
 
